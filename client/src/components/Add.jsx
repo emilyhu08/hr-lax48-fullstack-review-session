@@ -1,53 +1,86 @@
-import React from 'react';
-import axios from 'axios';
+import React from "react";
+const axios = require("axios");
 
 export default class Add extends React.Component {
-  constructor(props){
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
-      name: '',
-      imgurl: ''
-    }
+      name: "",
+      imageUrl: "",
+    };
+
+    this.changeHandler = this.changeHandler.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  changeHandler(e){
+  changeHandler(e) {
     // Todo: Add your code here to handle the data the client inputs
-
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
   }
 
-  handleSubmit(e){
+  handleSubmit(e) {
     // Todo: Add your code here to handle the API requests to add a student
-
+    e.preventDefault();
+    axios
+      .post("/students", {
+        name: this.state.name,
+        imageUrl: this.state.imageUrl,
+      })
+      .then(() => {
+        alert("student added");
+      })
+      .then(() => {
+        this.props.getStudents();
+      })
+      .then(() => {
+        this.setState({
+          name: "",
+          imageUrl: "",
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
-  showPreview(){
-    return (
-      (this.state.name && this.state.imgurl) ? (
-        <div>
-          <img src={this.state.imgurl}></img>
-          <h2>{this.state.name}</h2>
-        </div>
-      ) : (
-        <div>
-          Fill out the form and a preview will appear here...
-        </div>
-      )
-    )
+  showPreview() {
+    return this.state.name && this.state.imageUrl ? (
+      <div>
+        <img src={this.state.imageUrl}></img>
+        <h2>{this.state.name}</h2>
+      </div>
+    ) : (
+      <div>Fill out the form and a preview will appear here...</div>
+    );
   }
 
   render() {
     return (
       <div>
-        <form>
+        <form onSubmit={this.handleSubmit}>
           <label>Student Name: </label>
-          <input type="text" name="name" />
+          <input
+            name="name"
+            value={this.state.name}
+            onChange={this.changeHandler}
+            type="text"
+          />
           <label>Image URL: </label>
-          <input type="text" name="imgurl" />
-          <button type="submit" value="Submit">Submit</button>
+          <input
+            value={this.state.imageUrl}
+            type="text"
+            name="imageUrl"
+            onChange={this.changeHandler}
+          />
+          <button type="submit" value="Submit">
+            Submit
+          </button>
         </form>
         <h1>Preview:</h1>
         <div>{this.showPreview()}</div>
       </div>
-    )
+    );
   }
 }
